@@ -1,9 +1,44 @@
 from flask_restful import Resource, reqparse
 from models.hotel import HotelModel
 from flask_jwt_extended import jwt_required
+import sqlite3
+
+def normalizando_caminho_parametros(cidade=None, estrelas_min=0, estrelas_max=5, diaria_min=0, diaria_max=10000, limit=50, offset=0, **dados):
+
+    if cidade:
+        return {
+            'cidade': cidade,
+            'estrelas_min': estrelas_min,
+            'estrelas_max': estrelas_max,
+            'diaria_min': diaria_min,
+            'diaria_max': diaria_max,
+            'limit': limit,
+            'offset': offset
+        }
+    return {
+            'estrelas_min': estrelas_min,
+            'estrelas_max': estrelas_max,
+            'diaria_min': diaria_min,
+            'diaria_max': diaria_max,
+            'limit': limit,
+            'offset': offset
+        }
+
+caminho_parametro = reqparse.RequestParser()
+caminho_parametro.add_argument('cidade', type=str)
+caminho_parametro.add_argument('estrelas_min', type=float)
+caminho_parametro.add_argument('estrelas_max', type=float)
+caminho_parametro.add_argument('diaria_min', type=float)
+caminho_parametro.add_argument('diaria_max', type=float)
+caminho_parametro.add_argument('limit', type=int)
+caminho_parametro.add_argument('offset', type=int)
+
 
 class Hoteis(Resource):
     def get(self):
+
+        dados = caminho_parametro.parse_args()
+        dados_validos = {chave:dados[chave] for chave in dados if dados[chave] is not None}
         return {'hoteis': [hotel.json() for hotel in HotelModel.query.all()]}
 
 
