@@ -36,10 +36,33 @@ caminho_parametro.add_argument('offset', type=int)
 
 class Hoteis(Resource):
     def get(self):
+        connection = sqlite3.connect('banco.db')
+        cursor = connection.cursor()
 
         dados = caminho_parametro.parse_args()
         dados_validos = {chave:dados[chave] for chave in dados if dados[chave] is not None}
-        return {'hoteis': [hotel.json() for hotel in HotelModel.query.all()]}
+        parametros = normalizando_caminho_parametros(**dados_validos)
+
+        if not parametros.get('cidade'):
+            consulta = "SELECT * FROM hoteis WHERE (estrelas > ? and estrelas < ?) and (diaria > ? and diaria < ?) LIMIT ? OFFSET ?"
+            tupla = ([parametros[chave] for chave in parametros])
+            resultado = cursor.execute(consulta, tupla)
+        else:
+            consulta = "SELECT * FROM hoteis WHERE cidade = ? and (estrelas > ? and estrelas < ?) and (diaria > ? and diaria < ?) LIMIT ? OFFSET ?"
+            tupla = ([parametros[chave] for chave in parametros])
+            resultado = cursor.execute(consulta, tupla)
+
+        hoteis = []
+        for linha in resultado:
+            hoteis.append({
+            'hotel_id': linha[0],
+            'nome': linha[1],
+            'estrelas': linha[2],
+            'diaria': linha[3],
+            'cidade': linha[4]
+            })
+
+        return {'hoteis': hoteis} # SELECT * FROM hoteis
 
 
 class Hotel(Resource):
