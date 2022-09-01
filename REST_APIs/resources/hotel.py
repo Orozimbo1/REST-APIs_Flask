@@ -1,28 +1,8 @@
 from flask_restful import Resource, reqparse
 from models.hotel import HotelModel
 from flask_jwt_extended import jwt_required
+from resources.filtros import normalizando_caminho_parametros, consulta_sem_cidade, consulta_com_cidade
 import sqlite3
-
-def normalizando_caminho_parametros(cidade=None, estrelas_min=0, estrelas_max=5, diaria_min=0, diaria_max=10000, limit=50, offset=0, **dados):
-
-    if cidade:
-        return {
-            'cidade': cidade,
-            'estrelas_min': estrelas_min,
-            'estrelas_max': estrelas_max,
-            'diaria_min': diaria_min,
-            'diaria_max': diaria_max,
-            'limit': limit,
-            'offset': offset
-        }
-    return {
-            'estrelas_min': estrelas_min,
-            'estrelas_max': estrelas_max,
-            'diaria_min': diaria_min,
-            'diaria_max': diaria_max,
-            'limit': limit,
-            'offset': offset
-        }
 
 caminho_parametro = reqparse.RequestParser()
 caminho_parametro.add_argument('cidade', type=str)
@@ -44,13 +24,11 @@ class Hoteis(Resource):
         parametros = normalizando_caminho_parametros(**dados_validos)
 
         if not parametros.get('cidade'):
-            consulta = "SELECT * FROM hoteis WHERE (estrelas > ? and estrelas < ?) and (diaria > ? and diaria < ?) LIMIT ? OFFSET ?"
-            tupla = ([parametros[chave] for chave in parametros])
-            resultado = cursor.execute(consulta, tupla)
+            tupla = tuple([parametros[chave] for chave in parametros])
+            resultado = cursor.execute(consulta_sem_cidade, tupla)
         else:
-            consulta = "SELECT * FROM hoteis WHERE cidade = ? and (estrelas > ? and estrelas < ?) and (diaria > ? and diaria < ?) LIMIT ? OFFSET ?"
-            tupla = ([parametros[chave] for chave in parametros])
-            resultado = cursor.execute(consulta, tupla)
+            tupla = tuple([parametros[chave] for chave in parametros])
+            resultado = cursor.execute(consulta_com_cidade, tupla)
 
         hoteis = []
         for linha in resultado:
