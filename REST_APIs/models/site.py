@@ -18,7 +18,7 @@ class SiteModel(banco.Model):
         }
     
     @classmethod
-    def buscar_hotel(cls, url):
+    def buscar_site(cls, url):
         site = cls.query.filter_by(url=url).first() # SELECT * FROM sites WHERE site_id = $site_id
         if site:
             return site

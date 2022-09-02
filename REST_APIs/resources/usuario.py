@@ -37,7 +37,7 @@ class UsuarioCadastro(Resource):
         dados = atributos.parse_args()
 
         if UsuarioModel.buscar_por_login(dados['login']):
-            return {"message": "User '{}' already exists.".format(dados['login'])}
+            return {"message": "User '{}' already exists.".format(dados['login'])}, 404
         
         usuario = UsuarioModel(**dados)
         try:
