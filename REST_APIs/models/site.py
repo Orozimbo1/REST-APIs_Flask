@@ -29,5 +29,9 @@ class SiteModel(banco.Model):
         banco.session.commit()
     
     def delete_site(self):
+        # Deletando todos hoteis associados ao site
+        [hotel.delete_hotel() for hotel in self.hoteis]
+
+        # Deletando site
         banco.session.delete(self)
         banco.session.commit()

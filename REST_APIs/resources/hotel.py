@@ -58,7 +58,7 @@ class Hotel(Resource):
             return hotel.json(), 201
         return {'message': 'Hotel not found'}, 404
 
-    @jwt_required()
+    # @jwt_required()
     def post(self, hotel_id):
         if HotelModel.buscar_hotel(hotel_id):
             return {"message": "Hotel '{}' already exists.".format(hotel_id)}, 400
@@ -71,7 +71,7 @@ class Hotel(Resource):
             return {'message': 'An internal error ocurred trying to save hotel.'}, 500
         return hotel.json(), 201
 
-    @jwt_required()
+    # @jwt_required()
     def put(self, hotel_id):
 
         dados = Hotel.argumentos.parse_args()
@@ -93,7 +93,7 @@ class Hotel(Resource):
             return {'message': 'An internal error ocurred trying to save hotel.'}, 500
         return hotel.json(), 201
 
-    @jwt_required()
+    # @jwt_required()
     def delete(self, hotel_id):
         hotel = HotelModel.buscar_hotel(hotel_id)
 
